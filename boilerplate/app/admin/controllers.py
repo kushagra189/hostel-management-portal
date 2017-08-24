@@ -18,6 +18,8 @@ a=''
 @mod_admin.route('/addAdmin', methods=['GET','POST'])
 def create_admin():
 	klm = 'lodalassan'
+	global a
+	a=request.url
 	if request.method == 'GET':
 		return render_template('addadmin.html')
 	else:
@@ -28,24 +30,16 @@ def create_admin():
 			auth = request.form['auth']
 
 		except KeyError as e:
-			flash('Please Check your Details')
-			return redirect('/addAdmin')
-				#return jsonify(success=False, message="%s not sent in the request" % e.args), 400
+			return jsonify(success=False, message="%s not sent in the request" % e.args), 400
 		
 		if name=='' or email=='' or password=='' or auth=='':
-			flash('Please fill all your Details')
-			return redirect('/addAdmin')
-			#return jsonify(success=False, message="Invalid Credentials"), 400
+			return jsonify(success=False, message="Invalid Credentials"), 400
 
 		if '@' not in email:
-			flash('Please enter a valid email')
-			return redirect('/addAdmin')
-			#return jsonify(success=False, message="Please enter a valid email"), 400
+			return jsonify(success=False, message="Please enter a valid email"), 400
 
 		if  auth != klm :
-			flash('Authentication denied!!')
-			return redirect('/addAdmin')
-			#return jsonify(success=False, message="Authentication Req"), 400
+			return jsonify(success=False, message="Authentication Req"), 400
 		
 		admin = Admin(name,email,password)
 		db.session.add(admin)
@@ -53,19 +47,18 @@ def create_admin():
 		try:	
 			db.session.commit()
 		except IntegrityError as e:
-			flash('Email already exists')
-			return redirect('/addAdmin')
-			#return jsonify(success=False, message="This email already exists"), 400
-		flash('Admin added')
-		return redirect('/adlogin')
-		#return jsonify(success = True)
+			return jsonify(success=False, message="This email already exists"), 400
+	
+		return jsonify(success = True)
+
 
 @mod_admin.route('/getAllRegUser', methods=['GET'])
+
 def get_all_reg():
 		global a
 		a=request.url
 		if 'email' not in session:
-			 return redirect('/adlogin')
+			 return redirect('/login')
 	
 		opject = {'users' : []}
 		user = regUser.query.all()
@@ -83,7 +76,7 @@ def get_all_user():
 	if 'roll' in session:
 		session.pop('roll')
 	if 'email' not in session:
-		return redirect('/adlogin')
+		return redirect('/login')
 	#return session['email']
 	opject = {'users' : []}
 	user = verUser.query.all()
@@ -97,7 +90,7 @@ def get_all():
 		global a
 		a=request.url
 		if 'email' not in session:
-			return redirect('/adlogin')
+			return redirect('/login')
 	
 		opject = {'admin' : []}
 		admin = Admin.query.all()
@@ -110,7 +103,7 @@ def search():
 	global a
 	a=request.url
 	if 'email' not in session:
-		return redirect('/adlogin')
+		return redirect('/login')
 	
 	if request.method == 'GET':
 		return render_template('adminsearch.html')
@@ -118,9 +111,7 @@ def search():
 		try:
 			init = (request.form['enter']).lower()
 		except KeyError as e:
-			flash('Invalid Request')
-			return redirect('/adSearch')
-			#return jsonify(success=False, message="%s not sent in the request" % e.args), 400
+			return jsonify(success=False, message="%s not sent in the request" % e.args), 400
 
 		users = verUser.query.all()
 		opject = {'results' : []}
@@ -132,7 +123,10 @@ def search():
 				#opjec['results'].append(i.serialize())
 				arr.append(i.serialize())
 				db.session.commit()
-		return render_template('results.html' , users = arr)
+
+	return	jsonify(arr)
+#=======
+	return render_template('results.html' , users = arr)
 	#return	jsonify(opject)
 
 @mod_admin.route('/updateStatus', methods=['GET', 'POST'])
@@ -141,7 +135,7 @@ def status():
 	global a
 	a=request.url
 	if 'email' not in session:
-		return redirect('/adlogin')
+		return redirect('/login')
 	
 	users = regUser.query.filter(regUser.status == 1)	
 	if request.method == 'GET':
@@ -151,9 +145,7 @@ def status():
 		try:
 			email = request.form['email']
 		except:
-			flash('Integrity Error')
-			return redirect('/adSearch')
-			#return jsonify(success=False, message="%s not sent in the request" % e.args), 400
+			return jsonify(success=False, message="%s not sent in the request" % e.args), 400
 
 		user = regUser.query.filter(regUser.email == email).first()
 #		for user in users:
@@ -172,9 +164,8 @@ def status():
 			db.session.commit()
 		db.session.delete(user)
 		db.session.commit()
-		flash('User status updated')
-		return redirect('/updateStatus')
-		#return jsonify(success=True, message="User status updated")
+
+		return jsonify(success=True, message="User status updated")
 
 @mod_admin.route('/adlogin', methods=['POST' ,'GET'])
 def login():
@@ -190,9 +181,7 @@ def login():
 			password = request.form['password']
 			print(email)
 		except KeyError as e:
-			flash('Error')
-			return redirect('/adlogin')
-			#return jsonify(success=False, message="%s not sent in the request" % e.args), 400
+			return jsonify(success=False, message="%s not sent in the request" % e.args), 400
 
 		#if '@' not in email:
 		#		return jsonify(success=False, message="Please enter a valid email"), 400
@@ -200,9 +189,7 @@ def login():
 		ad = Admin.query.filter(Admin.email == request.form['email']).first()
 		#return jsonify(ad.check_password('k'))
 		if ad is None or not ad.check_password(password):
-			flash('Check your email or password')
-			return redirect('/adlogin')
-			#	return jsonify(success=False, message="Invalid Credentials"), 400
+				return jsonify(success=False, message="Invalid Credentials"), 400
 
 		session['email'] = email
 		if not a:

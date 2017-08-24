@@ -1,5 +1,4 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import *
 from app import db
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -43,8 +42,8 @@ class regUser(db.Model):
 				'hostel': self.hostel,
 				'room': self.room,
 				'contact': self.contact,
-				'guardianAdd': self.guardianAdd,
-				'guardianCon': self.guardianCon,
+				'Guardian Address': self.guardianAdd,
+				'Guardian Contact': self.guardianCon,
 				'status': self.status}
 
 	def __repr__(self):
@@ -99,27 +98,14 @@ class verUser(db.Model):
 		return {'name': self.name,
 				'roll': self.roll,
 				'email': self.email,
-			#	'password': self.password,
+				'password': self.password,
 				'hostel': self.hostel,
 				'room': self.room,
 				'contact': self.contact,
 				'rating': self.rating,
-				'guardianAdd': self.guardianAdd,
-				'guardianCon': self.guardianCon,
+				'Guardian Address': self.guardianAdd,
+				'Guardian Contact': self.guardianCon,
 				'status': self.status
-				}
-	def serialize2(self):
-		return {'name': self.name,
-				'roll': self.roll,
-				'email': self.email,
-			#	'password': self.password,
-				'hostel': self.hostel,
-				'room': self.room,
-			#	'contact': self.contact,
-				'rating': self.rating,
-			#	'Guardian Address': self.guardianAdd,
-			#	'Guardian Contact': self.guardianCon,
-			#	'status': self.status
 				}
 
 	def is_authenticated(self):
@@ -133,21 +119,22 @@ class Rating(db.Model):
 	__tablename__ = 'ratings'
 	#define here
 	id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-	userRoll = db.Column(db.Integer, db.ForeignKey('verified.roll'))
-	raterRoll = db.Column(db.Integer, db.ForeignKey('verified.roll'))
+	#userRoll = db.Column(db.Integer, db.ForeignKey())
+	#raterRoll = db.Column(db.Integer, db.ForeignKey())
 	rating = db.Column(db.Integer, default=0)
-	key = db.Column(db.BigInteger, unique=True)
+	hash = db.Column(db.Integer, unique=True)
 
 	def __init__(self,userRoll,raterRoll,rating):
 		self.userRoll = userRoll
 		self.raterRoll = raterRoll
 		self.rating = rating
-		self.key = userRoll + raterRoll
+		self.hash = 10000000000*userRoll + raterRoll
 
 	def serialize(self):
 		return {'userRoll': self.userRoll,
 				'raterRoll': self.raterRoll,
 				'rating': self.rating,
+				'hash': self.hash
 				}
 
 	def __repr__(self):

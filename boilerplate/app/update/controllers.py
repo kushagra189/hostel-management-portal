@@ -46,6 +46,6 @@ def update_user():
 			#db.session.add(u)
 			db.session.commit()
 
-		return redirect('/'+roll)
+		return redirect('/?roll='+roll)
 	else:
 		return redirect('/login')

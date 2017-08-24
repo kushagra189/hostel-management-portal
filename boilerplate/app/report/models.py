@@ -7,9 +7,8 @@ class Report(db.Model):
 	id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 	roll = db.Column(db.Integer)
 	#password = db.Column(db.String)
-	title = db.Column(db.String,unique=True)
+	title = db.Column(db.String)
 	quer = db.Column(db.String(2000))
-	#comments = []
 	#comments = db.relationship('Comments', backref='query', lazy='dynamic')
 	#comment = db.Column(db.String)
 	#status = db.Column(db.Integer, default=0)
@@ -20,7 +19,7 @@ class Report(db.Model):
 		#self.password = password
 		self.title = title
 		self.quer = quer
-		#self.comment = []
+		#self.comment = 
 		#self.user_roll = user_roll
 
 	def serialize(self):
@@ -29,32 +28,30 @@ class Report(db.Model):
 				'roll no': self.roll,
 				'title': self.title,
 				'query': self.quer,
-				#'comments': self.comments
+				'comments': comments
 				#'status': self.status,
 			}
 
 	def __repr__(self):
 		return "%s" % (self.title)
-
+'''
 class Comments(db.Model):
 	__tablename__= 'comments'
 	
-	id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-	rid = db.Column(db.Integer)
-	userRoll = db.Column(db.String)#, db.ForeignKey('verified.roll'))
+	#id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+	rid = db.Column(db.Integer, db.ForeignKey('reports.id'))
+	#name = db.Column(db.String, unique=True)
 	comment = db.Column(db.String)
 
-	def __init__(self, userRoll, comment, rid):
-		self.userRoll = userRoll
+	def __init__(self, comment):
+		#self.name = name
 		self.comment = comment
-		self.rid = rid
 
 	def serialize(self):
 		return {
-			'roll': self.userRoll,
-			'comment': self.comment,
-			'rid': self.rid
+			#'name': self.name,
+			'comment': self.comment
 		}
 	
 	def __repr__(self):
-		return"%s" % (self.comment)
+		return"%s" % (self.comment)'''
